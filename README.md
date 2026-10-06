@@ -37,8 +37,7 @@ A multi-label classification project for chest X-ray images using DenseNet-121. 
   - **Inputs:** The 4 logits/labels arrays generated from Block C.
   - **Tasks:** Learn temperature scaling coefficients ($T$) per pathology, compute Expected Calibration Error (ECE), Brier scores, and plot reliability diagrams.
   - **Outputs:** Excel spreadsheets and calibration PNG plots.
-
-    # Training & Evaluation Instructions
+# Training & Evaluation Instructions
 
 ## 1. Environment Setup
 
@@ -52,13 +51,13 @@ pip install -r requirements.txt
 
 ## 2. Data Preparation
 
-Follow the instructions in `DATA.md` to download and prepare the NIH ChestX-ray14 dataset (224×224 version) and create the official patient-wise splits.
+Download and prepare the NIH ChestX-ray14 dataset following the instructions in `DATA.md`.
 
-### Expected Directory Structure
+Expected structure:
 
 ```text
 data/
-├── images/                 # 224×224 images
+├── images/
 ├── Data_Entry_2017.csv
 ├── train_val_list.txt
 ├── test_list.txt
@@ -68,103 +67,101 @@ data/
     └── test.csv
 ```
 
----
-
-## 3. Training
-
-We use **DenseNet-121** pretrained on ImageNet as the backbone model.
-
-Run training with:
-
-```bash
-python train.py \
-  --data_dir data/ \
-  --output_dir results/ \
-  --model densenet121 \
-  --epochs 20 \
-  --batch_size 32 \
-  --lr 1e-4 \
-  --optimizer adamw \
-  --loss bce_with_logits
-```
-
-### Training Configuration
-
-- **Backbone:** DenseNet-121 (ImageNet pretrained)
-- **Loss Function:** BCEWithLogitsLoss
-- **Optimizer:** AdamW
-- **Learning Rate:** 1e-4
-- **Epochs:** 20
-- **Batch Size:** 32
-
-The best-performing model checkpoint will be automatically saved in:
+Run:
 
 ```text
-results/
+Data_preparation.ipynb
 ```
+
+This notebook:
+
+- Downloads/prepares the ChestX-ray14 dataset
+- Resizes images to 224×224
+- Generates metadata files required for training
 
 ---
 
-## 4. Post-hoc Calibration (Main Method)
+## 3. Dataset Splitting
 
-After training, two inexpensive post-hoc calibration steps are applied. Both are fitted **only on the validation set**:
-
-1. **Per-disease F1-optimal threshold selection**
-2. **Per-disease temperature scaling**
+Create the official patient-wise train/validation/test splits.
 
 Run:
 
-```bash
-python calibrate.py \
-  --checkpoint results/best_model.pth \
-  --val_csv data/splits/val.csv \
-  --output_dir results/calibration/
+```text
+Data_Split.ipynb
 ```
 
-### Generated Outputs
-
-The calibration procedure produces:
-
-- Optimal thresholds $\tau_c$ for each of the 14 diseases
-- Temperature parameters $T_c$ for each disease
-
-Output files are saved in:
+Output:
 
 ```text
-results/calibration/
+data/splits/
+├── train.csv
+├── val.csv
+└── test.csv
 ```
 
 ---
 
-## 5. Evaluation
+## 4. Model Training
 
-Evaluate on the official test set using the validation-tuned thresholds and temperature parameters:
+The model backbone is **DenseNet-121 pretrained on ImageNet**.
 
-```bash
-python evaluate.py \
-  --checkpoint results/best_model.pth \
-  --test_csv data/splits/test.csv \
-  --thresholds results/calibration/thresholds.json \
-  --temperatures results/calibration/temperatures.json \
-  --output_dir results/evaluation/
-```
-
-Evaluation results and analysis will be saved to:
+Run:
 
 ```text
-results/evaluation/
+Train_DenseNet121.ipynb
 ```
+
+Training configuration:
+
+- Backbone: DenseNet-121
+- Loss Function: BCEWithLogitsLoss
+- Optimizer: AdamW
+- Learning Rate: 1e-4
+- Batch Size: 32
+- Epochs: 20
+
+The best checkpoint is saved in the `Result/` directory.
 
 ---
 
-# Main Results
+## 5. Post-hoc Calibration
+
+Apply validation-set calibration using:
+
+```text
+Calibration.ipynb
+```
+
+This notebook computes:
+
+1. Per-disease F1-optimal thresholds
+2. Per-disease temperature scaling parameters
+
+Outputs:
+
+- Disease-specific thresholds
+- Disease-specific temperatures
+- Calibration statistics
+
+---
+
+## 6. Threshold Evaluation
+
+Evaluate threshold optimization performance using:
+
+```text
+threshold_eval_colab.ipynb
+```
+
+Main Results:
 
 | Method | Macro-F1 | Micro-F1 |
 |----------|----------:|----------:|
 | Baseline (threshold = 0.5) | 0.144 | 0.250 |
 | + F1-optimal thresholds | **0.320** | **0.381** |
 
-Temperature scaling improves calibration quality by reducing the mean Expected Calibration Error (ECE):
+Temperature scaling reduces mean ECE:
 
 ```text
 0.0204 → 0.0176
@@ -174,14 +171,28 @@ while leaving AUROC unchanged.
 
 ---
 
-# Additional Analysis
+## 7. Inference Demo
 
-The `results/` directory contains:
+Run:
 
-- Detailed per-disease performance metrics
-- Reliability diagrams
-- Calibration analysis
-- Error analysis reports
-- Saved model checkpoints
+```text
+Demo_inference.ipynb
+```
+
+to perform inference on new chest X-ray images using the trained DenseNet-121 model and calibrated thresholds.
 
 ---
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
