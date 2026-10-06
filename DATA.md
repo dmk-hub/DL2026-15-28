@@ -50,7 +50,6 @@ Since we use the already resized version, the preprocessing steps applied are:
 3. **Patient-wise splitting**: Using official `train_val_list.txt` and `test_list.txt`.
 4. **Normalization**: Standard ImageNet mean/std normalization (applied during training).
 
-No additional geometric resizing or cropping is performed in our pipeline.
 
 ## 6. How to Reproduce the Data
 
