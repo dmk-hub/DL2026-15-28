@@ -35,7 +35,7 @@ We follow the **official patient-wise split** provided by NIH to avoid data leak
 | -------------- | ---------------- | ------------------------------------------ | ---------------------------------------- |
 | **Test**       | 25,596           | Official `test_list.txt`                   | Held-out test set                        |
 | **Validation** | 10,664           | Sampled from official `train_val_list.txt` | Used for threshold & temperature scaling |
-| **Train**      | Remaining        | Remaining images from `train_val_list.txt` | Used for model training                  |
+| **Train**      | 75,860           | Remaining images from `train_val_list.txt` | Used for model training                  |
 ```
 
 - Thresholds and temperature scaling parameters are fitted **only on the validation set**.
@@ -59,4 +59,3 @@ No additional geometric resizing or cropping is performed in our pipeline.
 
 2. Use the official NIH files (`Data_Entry_2017.csv`, `train_val_list.txt`, `test_list.txt`) to create the patient-wise train / validation / test splits as described in Section 4.
 
-> Note: The original preprocessing scripts in the repository (`data_preprocessing.py`, `patient_split.py`) are designed for the raw 1024×1024 images and are **not required** when using this pre-resized version.
