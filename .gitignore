@@ -1,0 +1,15 @@
+# Model weights
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.onnx
+best.pt
+last.pt
+
+# Results
+Result*/
+runs/
+outputs/
+logs/
+*.zip
